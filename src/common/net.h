@@ -26,6 +26,8 @@ int net_connect(net_context *ctx, char *hostname);
  * Function: net_prepare_server
  * ----------------------------
  * Prepare server socket for its job
+ *
+ * returns: peer identifier to be used with net_send_message() or net_close()
  */
 int net_prepare_server(net_context *ctx);
 
@@ -33,7 +35,20 @@ int net_prepare_server(net_context *ctx);
  * Function: net_wait
  * ------------------
  * Wait for message from any peer
+ *
+ * from: pointer to integer to be filled with peer identifier
+ *
+ * returns: message from peer identified by "from"
  */
-net_text net_wait(net_context *ctx);
+net_text net_wait(net_context *ctx, int *from);
+
+/*
+ * Function: net_close
+ * -------------------
+ * Close connection to the peer
+ * 
+ * peer: identifier of peer whose connection is to be closed
+ */
+void net_close(net_context *ctx, int peer)
 
 #endif
