@@ -2,6 +2,7 @@
 #define NET_STRUCTS_H_ 1
 
 #include <stdio.h>
+#include <sys/types.h>
 
 typedef struct {
   int len;
@@ -37,6 +38,8 @@ typedef struct {
   net_string filename;
   net_text *contents;
   net_text *last;
+  int socket;
+  fd_set fds;
 } net_context;
 
 #endif
