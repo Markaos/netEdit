@@ -1,6 +1,10 @@
 #ifndef NET_NET_H_
 #define NET_NET_H_ 1
 
+#include "structs.h"
+
+#define NET_PORT 1234
+
 /*
  * Function: net_send_message
  * --------------------------
@@ -9,7 +13,7 @@
  * to: peer identifier obtained by calling net_connect() or net_listen()
  * message: message to be sent
  */
-void net_send_message(net_context *ctx, int to, net_text message);
+void net_send_message(net_context *ctx, int to, net_string message);
 
 /*
  * Function: net_connect
@@ -19,6 +23,7 @@ void net_send_message(net_context *ctx, int to, net_text message);
  * hostname: server hostname or IP address
  *
  * returns: peer identifier to be used with net_send_message() or net_close()
+ *          or -1 on failure
  */
 int net_connect(net_context *ctx, char *hostname);
 
@@ -27,7 +32,7 @@ int net_connect(net_context *ctx, char *hostname);
  * ----------------------------
  * Prepare server socket for its job
  *
- * returns: peer identifier to be used with net_send_message() or net_close()
+ * returns: zero on success, -1 on failure
  */
 int net_prepare_server(net_context *ctx);
 
@@ -40,7 +45,7 @@ int net_prepare_server(net_context *ctx);
  *
  * returns: message from peer identified by "from"
  */
-net_text net_wait(net_context *ctx, int *from);
+net_string net_wait(net_context *ctx, int *from);
 
 /*
  * Function: net_close
@@ -49,6 +54,6 @@ net_text net_wait(net_context *ctx, int *from);
  * 
  * peer: identifier of peer whose connection is to be closed
  */
-void net_close(net_context *ctx, int peer)
+void net_close(net_context *ctx, int peer);
 
 #endif
