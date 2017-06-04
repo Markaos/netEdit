@@ -40,8 +40,14 @@ int main(int argc, char *argv[]) {
     }
 
     net_cmd cmd = net_cmd_from_message(msg);
+    net_cmd c;
     switch(cmd.cmd) {
       case NET_CMD_SET_NAME:
+        c.cmd = NET_CMD_NAME_CHANGED;
+        c.message = net_str_from_raw(&(cmd.message.len), sizeof(size_t));
+        net_str_append(&(c.message), cmd.message);
+        net_str_append(&(c.message), net_str_from_raw(&res, sizeof(int)));
+        net_broadcast(ctx, net_cmd_bake_message(c), -1);
         printf("Name for peer %d has been set to %s\n", res, cmd.message.str);
         break;
       default:
