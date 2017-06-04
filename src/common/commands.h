@@ -9,6 +9,10 @@ typedef unsigned short net_command;
 /*    User management    */
 #define NET_CMD_SET_NAME      0x0000
 #define NET_CMD_MOVE_CURSOR   0x0001
+#define NET_CMD_ID_ASSIGNED   0x0002
+#define NET_CMD_ADD_USER      0x0003
+#define NET_CMD_USER_ADDED    0x0004
+#define NET_CMD_NAME_CHANGED  0x0005
 
 /*    0x0070 - 0x00ff    */
 /*   Standard  replies    */
