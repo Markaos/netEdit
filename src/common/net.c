@@ -56,6 +56,17 @@ int net_prepare_server(net_context *ctx) {
     return -1;
   }
 
+  int enable = 1;
+  if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0) {
+    return -2;
+  }
+
+#ifdef SO_REUSEPORT
+  if (setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, &enable, sizeof(int)) < 0) {
+    return -2;
+  }
+#endif
+
   name.sin_family = AF_INET;
   name.sin_port = htons(NET_PORT);
   name.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -106,12 +117,16 @@ net_string net_wait(net_context *ctx, int *from) {
 
       char buffer[BUFFER_SIZE];
       int r = read(i, buffer, BUFFER_SIZE);
-      out.len = r;
-      out.str = realloc(out.str, sizeof(char) * (r + 1));
-      memcpy(out.str, &(buffer[0]), r);
-      out.str[out.len] = '\0';
-      *from = i;
-      return out;
+      if(r <= 0) {
+        net_close(ctx, i);
+      } else {
+        out.len = r;
+        out.str = realloc(out.str, sizeof(char) * (r + 1));
+        memcpy(out.str, &(buffer[0]), r);
+        out.str[out.len] = '\0';
+        *from = i;
+        return out;
+      }
     }
   }
 
