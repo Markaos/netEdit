@@ -7,10 +7,12 @@
 #include <sys/select.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <errno.h>
 
 #include "net.h"
 
 #define BUFFER_SIZE 4096
+#define MAX_CONNECTIONS 32
 
 void net_send_message(net_context *ctx, int peer, net_string message) {
   write(peer, message.str, message.len); /* Making FD the peer identifier */
@@ -62,6 +64,10 @@ int net_prepare_server(net_context *ctx) {
     return -1;
   }
 
+  if(listen(sock, MAX_CONNECTIONS) < 0) {
+    return -1;
+  }
+
   ctx->socket = sock;
 
   fd_set fds;
@@ -76,7 +82,7 @@ int net_prepare_server(net_context *ctx) {
 net_string net_wait(net_context *ctx, int *from) {
   fd_set fds = ctx->fds;
   net_string out;
-  if(select(FD_SETSIZE, &fds, NULL, NULL, NULL) < 0) {
+  if(select(FD_SETSIZE, &fds, NULL, NULL, NULL) < 1) {
     *from = -1;
     out.len = 0;
     out.str = NULL;
@@ -86,12 +92,10 @@ net_string net_wait(net_context *ctx, int *from) {
   for(int i = 0; i < FD_SETSIZE; i++) {
     if(FD_ISSET(i, &fds)) {
       if(i == ctx->socket) {
-        struct sockaddr_in name;
-        socklen_t size;
-        int new = accept(i, (struct sockaddr *) &name, &size);
+        int new = accept(i, NULL, NULL);
 
         if(new >= 0) {
-          FD_SET(i, &(ctx->fds));
+          FD_SET(new, &(ctx->fds));
         }
 
         *from = -2;
