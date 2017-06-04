@@ -10,6 +10,7 @@
 #include <errno.h>
 
 #include "net.h"
+#include "str.h"
 
 #define BUFFER_SIZE 4096
 #define MAX_CONNECTIONS 32
@@ -42,8 +43,9 @@ int net_connect(net_context *ctx, char *hostname) {
     return -1;
   }
 
-  FD_ZERO(&(ctx->fds)); /* Just in case */
-  ctx->socket = sock;
+  FD_ZERO(&(ctx->fds));
+  FD_SET(sock, &(ctx->fds));
+  ctx->socket = -1;
   return sock;
 }
 
@@ -107,6 +109,12 @@ net_string net_wait(net_context *ctx, int *from) {
 
         if(new >= 0) {
           FD_SET(new, &(ctx->fds));
+          net_cmd cmd;
+          cmd.cmd = NET_CMD_ID_ASSIGNED;
+          cmd.message.len = 0;
+          cmd.message.str = NULL;
+          net_str_append(&(cmd.message), net_str_from_raw(&new, sizeof(int)));
+          net_send_message(ctx, new, net_cmd_bake_message(cmd));
         }
 
         *from = -2;
@@ -139,4 +147,12 @@ net_string net_wait(net_context *ctx, int *from) {
 void net_close(net_context *ctx, int peer) {
   close(peer); /* Actually, the identifier is just a file descriptor */
   FD_CLR(peer, &(ctx->fds));
+}
+
+void net_broadcast(net_context *ctx, net_string message, int except) {
+  for(int i = 0; i < FD_SETSIZE; i++) {
+    if(FD_ISSET(i, &(ctx->fds)) && i != ctx->socket) {
+      write(i, message.str, message.len);
+    }
+  }
 }

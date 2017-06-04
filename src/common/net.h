@@ -56,4 +56,14 @@ net_string net_wait(net_context *ctx, int *from);
  */
 void net_close(net_context *ctx, int peer);
 
+/*
+ * Function: net_broadcast
+ * -----------------------
+ * Send message to all peers (server-only)
+ * 
+ * message: message to be sent
+ * except: message won't be sent to this peer; use -1 to send to all
+ */
+void net_broadcast(net_context *ctx, net_string message, int except);
+
 #endif
