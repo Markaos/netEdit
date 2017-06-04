@@ -4,9 +4,10 @@
 
 net_cmd net_cmd_from_message(net_string message) {
   net_cmd out;
-  out.message.str = malloc(sizeof(char) * message.len - sizeof(net_command));
+  out.message.len = message.len - sizeof(net_command) / sizeof(char);
+  out.message.str = malloc(sizeof(char) * out.message.len);
   memcpy(&out.cmd, message.str, sizeof(net_command));
-  memcpy(out.message.str, message.str + sizeof(net_command), sizeof(char) * message.len - sizeof(net_command));
+  memcpy(out.message.str, message.str + sizeof(net_command), sizeof(char) * out.message.len);
   return out;
 }
 
