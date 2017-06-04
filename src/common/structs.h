@@ -5,11 +5,13 @@
 #include <sys/types.h>
 
 typedef struct {
-  int len;
+  size_t len;
   char *str;
 } net_string;
 
-typedef struct {
+struct net_user;
+typedef struct net_user {
+  struct net_user *next;
   int id;
   net_string name;
 } net_user;
@@ -48,6 +50,7 @@ typedef struct {
   net_text *last;
   int socket;
   fd_set fds;
+  net_user *users;
 } net_context;
 
 #endif
