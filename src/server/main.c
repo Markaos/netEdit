@@ -5,6 +5,7 @@
 #include <text.h>
 #include <str.h>
 #include <net.h>
+#include <commands.h>
 
 #include "load.h"
 
@@ -34,7 +35,19 @@ int main(int argc, char *argv[]) {
       continue;
     }
 
-    printf("Message lenght: %d; Message: %s\n", msg.len, msg.str);
+    if(msg.len < 2) {
+      continue;
+    }
+
+    net_cmd cmd = net_cmd_from_message(msg);
+    switch(cmd.cmd) {
+      case NET_CMD_SET_NAME:
+        printf("Name for peer %d has been set to %s\n", res, cmd.message.str);
+        break;
+      default:
+        printf("Unknown command: %d\n", cmd.cmd);
+        break;
+    }
 
     res = net_server_save_file(ctx, net_make_str_c(argv[2]));
     if(res < 0) {
