@@ -33,6 +33,14 @@ typedef struct net_text {
   net_string line;
 } net_text;
 
+typedef struct net_cmd net_cmd;
+#include "commands.h"
+
+struct net_cmd {
+  unsigned short cmd;
+  net_string message;
+};
+
 typedef struct {
   FILE *file;
   net_string filename;
